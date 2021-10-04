@@ -1,6 +1,6 @@
-const Square = ({squareClick, value}) => {
+const Square = ({value, extraClass, squareClick}) => {
     return (
-        <button className="square" onClick = {()=> squareClick()}>{value}</button>
+        <button className={extraClass}  onClick = {()=> squareClick()}>{value}</button>
     )
 }
 

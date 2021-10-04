@@ -1,0 +1,89 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.square{
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
+.square:hover{
+  cursor: pointer;
+  background: #ddd;
+
+}
+
+.game{
+  display: flex;
+
+}
+
+.game-board{
+  margin: 30px;
+}
+
+.board-row::after{
+  clear: both;
+  content: "";
+  display: table;
+}
+
+h1{
+  text-align: center;
+}
+
+.game-info{
+  margin-top: 30px;
+}
+
+.status{
+  font-size: 20px;
+  font-weight: bold;
+  
+
+}
+
+.history{
+  padding: 20px;
+}
+
+.history button{
+  cursor: pointer;
+  padding: 5px;
+}
+
+.history li{
+  padding: 3px;
+}
+
+.history-moves{
+  margin-bottom: -10px;
+  font-weight: 500;
+}
+
+
+.order{
+  padding: 3px;
+  margin-bottom: 10px;
+
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.highlight{
+  font-weight: bold;
+  color: red;
+}

@@ -1,30 +1,75 @@
 import Board from "./Board";
 import { useState } from "react";
+import { calculateWinner } from "../winner"
 
 const Game = () => {
-    const [history, setHistory] = useState([{ squares: Array(9).fill(null) }]);
+    const [size, setSize] = useState(5);
+    const [history, setHistory] = useState([{ squares: Array(size * size).fill(null), picked: null, }]);
     const [xIsNext, setXIsNext] = useState(true);
     const [stepNo, setStepNo] = useState(0);
+    const [sort, setSort] = useState(true);
+
+
+    const winnerInfo = calculateWinner(history[stepNo].squares);
+    const winner = winnerInfo ? winnerInfo[0] : winnerInfo;
+    const winnerCell = winnerInfo ? winnerInfo.slice(1) : winnerInfo;
+
 
     const handleClick = (i) => {
         const passMoves = history.slice(0, stepNo + 1);
         const current = [...passMoves[stepNo].squares];
 
+        if (winner || current[i]) {
+            return;
+        }
         current[i] = xIsNext ? "X" : "O";
-        setHistory([...passMoves, { squares: current }])
+        setHistory([...passMoves, { squares: current, picked: i }])
         setXIsNext((prev) => !prev);
         setStepNo(passMoves.length);
     };
 
-    const moves = history.map((_step, move) => {
-        const desc = move ? `Go to move ${move}` : `Go to start game`;
+    let moves = history.map((step, move) => {
+        // const desc = move ? `Go to move ${move}: ` : `Go to start game`;
+
+        const desc = move ? 'Go to move #' + move + ' : (' +
+            (step.picked % 3 + 1) + ',' + (Math.floor(step.picked / 3) + 1) + ')'
+            : 'Go to game start';
+        const formatClass = (move === stepNo ? 'bold' : '');
         return (
             <li>
-                <button onClick={() => jumpTo(move)}>{desc}</button>
+                <button className={formatClass} onClick={() => jumpTo(move)}>{desc}</button>
             </li>
         );
     });
 
+    console.log(typeof(size));
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setSize(Number(event.target[0].value));
+        setHistory([{ squares: Array(size * size).fill(null), picked: null, }])
+        
+    }
+
+
+    let form = <form onSubmit={handleSubmit}>
+        <label>
+            Size:
+            <input type="number" name="size"/>
+        </label>
+        <input type="submit" value="Submit"/>
+    </form>
+
+    const oppOrder = sort ? 'Descending' : 'Ascending';
+    let toggleButton = <div>
+        Toggle moves order to:
+        <button className="order" onClick={() => toggleOrder()}>{oppOrder}</button>
+    </div>
+
+
+
+    const toggleOrder = () => {
+        setSort(!sort);
+    }
     const jumpTo = (step) => {
         setStepNo(step);
         setXIsNext(step % 2 === 0);
@@ -32,46 +77,37 @@ const Game = () => {
 
     const evaluateStatus = () => {
         let status;
-        const winner = calculateWinner(history[stepNo].squares);
-        status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? "X" : "O"}`;
-
+        // const winner = calculateWinner(history[stepNo].squares);
+        // status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? "X" : "O"}`;
+        if (winner) {
+            if (winner === 'draw')
+                status = 'Match resulted in a draw'
+            else
+                status = 'Winner: ' + winner;
+        }
+        else {
+            status = `Next player: ${xIsNext ? "X" : "O"}`;
+        }
         return status;
     };
 
-    const calculateWinner = (squares) => {
-        const lines = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
-        for (let i =0; i <lines.length; i++){
-            const [a, b, c] = lines[i];
-            if(
-                squares[a] &&
-                squares[a] === squares[b] &&
-                squares[a] === squares[c]
-            )
-            {
-                return squares[a];
-            }
 
-        }
-    };
+
+
     return (
         <div className="game">
             <div className="game-board">
                 <Board square={history[stepNo].squares}
-                    boardClick={(i) => handleClick(i)} />
+                    winnerCell={winnerCell}
+                    boardClick={(i) => handleClick(i)} 
+                    size={size}/>
             </div>
             <div className="game-info">
                 <p className="status">{evaluateStatus()}</p>
-                <p>History moves</p>
-                <ol className="history">{moves}</ol>
+                <p className="">{form} {size}</p>
+                <p className="order">{toggleButton} </p>
+                <p className="history-moves">History moves</p>
+                <ol className="history">{sort ? moves : moves.reverse()}</ol>
             </div>
         </div>
     )
