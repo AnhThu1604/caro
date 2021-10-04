@@ -10,15 +10,14 @@ const Game = () => {
     const [sort, setSort] = useState(true);
 
 
-    const winnerInfo = calculateWinner(history[stepNo].squares);
-    const winner = winnerInfo ? winnerInfo[0] : winnerInfo;
-    const winnerCell = winnerInfo ? winnerInfo.slice(1) : winnerInfo;
+    const winner = calculateWinner(history[stepNo].squares, size, history[stepNo].picked);
+    let winnerCell;
+
 
 
     const handleClick = (i) => {
         const passMoves = history.slice(0, stepNo + 1);
         const current = [...passMoves[stepNo].squares];
-
         if (winner || current[i]) {
             return;
         }
@@ -29,10 +28,9 @@ const Game = () => {
     };
 
     let moves = history.map((step, move) => {
-        // const desc = move ? `Go to move ${move}: ` : `Go to start game`;
 
         const desc = move ? 'Go to move #' + move + ' : (' +
-            (step.picked % 3 + 1) + ',' + (Math.floor(step.picked / 3) + 1) + ')'
+            (step.picked % size + 1) + ',' + (Math.floor(step.picked / size) + 1) + ')'
             : 'Go to game start';
         const formatClass = (move === stepNo ? 'bold' : '');
         return (
@@ -42,21 +40,21 @@ const Game = () => {
         );
     });
 
-    console.log(typeof(size));
+
     const handleSubmit = (event) => {
         event.preventDefault();
         setSize(Number(event.target[0].value));
         setHistory([{ squares: Array(size * size).fill(null), picked: null, }])
-        
+
     }
 
 
     let form = <form onSubmit={handleSubmit}>
         <label>
             Size:
-            <input type="number" name="size"/>
+            <input type="number" name="size" />
         </label>
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit" />
     </form>
 
     const oppOrder = sort ? 'Descending' : 'Ascending';
@@ -65,7 +63,10 @@ const Game = () => {
         <button className="order" onClick={() => toggleOrder()}>{oppOrder}</button>
     </div>
 
-
+    if(winner){
+        winnerCell = winner.index;
+    }
+    
 
     const toggleOrder = () => {
         setSort(!sort);
@@ -75,18 +76,20 @@ const Game = () => {
         setXIsNext(step % 2 === 0);
     };
 
+
     const evaluateStatus = () => {
         let status;
-        // const winner = calculateWinner(history[stepNo].squares);
-        // status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? "X" : "O"}`;
+
         if (winner) {
-            if (winner === 'draw')
-                status = 'Match resulted in a draw'
-            else
-                status = 'Winner: ' + winner;
+            status = 'Winner: ' + winner.player;
         }
         else {
-            status = `Next player: ${xIsNext ? "X" : "O"}`;
+            if (history.length === (size * size + 1)) {
+                status = 'Match resulted in a draw'
+            }
+            else{
+                status = `Next player: ${xIsNext ? "X" : "O"}`;
+            }
         }
         return status;
     };
@@ -99,12 +102,12 @@ const Game = () => {
             <div className="game-board">
                 <Board square={history[stepNo].squares}
                     winnerCell={winnerCell}
-                    boardClick={(i) => handleClick(i)} 
-                    size={size}/>
+                    boardClick={(i) => handleClick(i)}
+                    size={size} />
             </div>
             <div className="game-info">
                 <p className="status">{evaluateStatus()}</p>
-                <p className="">{form} {size}</p>
+                <p className="">{form}</p>
                 <p className="order">{toggleButton} </p>
                 <p className="history-moves">History moves</p>
                 <ol className="history">{sort ? moves : moves.reverse()}</ol>

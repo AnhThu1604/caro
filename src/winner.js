@@ -1,23 +1,103 @@
-export function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return [squares[a], a, b, c];
-        }
+export function calculateWinner(squares, size, picked) {
+    let row = Math.floor(picked / size);
+    let col = picked % size;
+
+
+    let result = [];
+    result.push(picked);
+    let k = picked + 1;
+
+
+
+    // Check row
+    while (k < row * size + size && squares[k] === squares[picked]) {
+        result.push(k);
+        k++
     }
-    for (let i = 0; i < 9; i++) {
-        if (squares[i] === null)
-            return null;
+    k = picked - 1;
+    while (k >= row * size && squares[k] === squares[picked]) {
+        result.push(k);
+        k--;
     }
-    return ['draw', null]
+    
+    if (result.length > 4){
+        return{
+            player: squares[picked],
+            index:result,
+        };
+    }
+
+    // Check col
+    result = []; 
+    result.push(picked);
+    let h = picked + size;
+    while (k < size * size && squares[h] === squares[picked]) {
+        result.push(h);
+        h = h + size;
+    }
+    h = picked - size;
+    while (h >= 0 && squares[h] === squares[picked]) {
+        result.push(h);
+        h = h - size;
+    }
+    
+    if (result.length > 4){
+        return{
+            player: squares[picked],
+            index:result,
+        };
+    }
+    
+    // Check diagonal left
+    result = [];  
+    result.push(picked);
+    h = row + 1;
+    k = col + 1;
+    while (h < size && k < size && squares[h * size + k] === squares[picked]) {
+        result.push(h * size + k);
+        h++;
+        k++;
+    }
+    h = row - 1;
+    h = col - 1;
+    while (h >= 0 && k >= 0 && squares[h * size + k] === squares[picked]) {
+        result.push(h * size + k);
+        h--;
+        k--;
+    }
+    
+    if (result.length > 4){
+        return{
+            player: squares[picked],
+            index:result,
+        };
+    }
+
+
+    // Check diagonal right 
+    result = [];
+    result.push(picked);
+    h = row + 1;
+    k = col - 1;
+    while (h < size && k >= 0 && squares[h * size + k] === squares[picked]) {
+        result.push(h * size + k);
+        h++;
+        k--;
+    }
+    h = row - 1;
+    k = col + 1;
+    while (h >= 0 && k < size && squares[h * size + k] === squares[picked]) {
+        result.push(h * size + k);
+        h--;
+        k++;
+    }
+    
+    if (result.length > 4){
+        return{
+            player: squares[picked],
+            index:result,
+        };
+    }
+   return null;
+    
 };
